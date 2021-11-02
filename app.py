@@ -3,9 +3,9 @@ import pandas
 from sqlalchemy import create_engine
 from sqlalchemy.dialects.oracle import NUMBER, NVARCHAR2, TIMESTAMP
 from apscheduler.schedulers.blocking import BlockingScheduler
-
 from auth import Auth
 from db_config import DB_HOST, DB_NAME, DB_PASSWORD, DB_USER
+import json
 
 APP_ID = '56edb16ea02b4d48a6b98eabd250e240'
 APP_KEY = 'ladUqDMhhgBnvWhMuY9r4priDRY'
@@ -18,6 +18,7 @@ def fetch_flight_data():
         'https://ptx.transportdata.tw/MOTC/v2/Air/FIDS/Flight?format=JSON',
         headers=headers
     )
+    # print(response)
     print(f"HTTP status: {response.status_code}")
 
     last_modified = response.headers.get("Last-Modified")
@@ -25,7 +26,12 @@ def fetch_flight_data():
         with open('last_modified_file.txt', mode='w') as f:
             f.write(last_modified)
 
-    return response.json
+    
+    flight_data = response.json()
+    # print(flight_data)
+    
+    
+    return flight_data
 
 
 def process_data(flight_data):
@@ -34,6 +40,8 @@ def process_data(flight_data):
     column_type_dict = {}
     time_column_list = ['FlightDate', 'ScheduleDepartureTime', 'ActualDepartureTime', 'ScheduleArrivalTime',
                         'ActualArrivalTime', 'EstimatedArrivalTime', 'EstimatedDepartureTime', 'UpdateTime']
+    
+
     for column, dtype in zip(flight_df.columns, flight_df.dtypes):
         if 'object' in str(dtype):
             column_type_dict.update({column: NVARCHAR2})
@@ -56,15 +64,16 @@ def save_data_to_db(flight_df, column_type_dict):
 def get_flight_data_and_save():
     # 取得即時航班 API 資料
     flight_data = fetch_flight_data()
-    # 資料處理
-    flight_df, column_type_dict = process_data(flight_data)
-    # 存入資料庫
-    save_data_to_db(flight_df, column_type_dict)
+    if flight_data:
+        # 資料處理
+        flight_df, column_type_dict = process_data(flight_data)
+        # 存入資料庫
+        save_data_to_db(flight_df, column_type_dict)
 
 
 def main():
     scheduler = BlockingScheduler()
-    scheduler.add_job(get_flight_data_and_save, "interval", hours="1")
+    scheduler.add_job(get_flight_data_and_save, "interval",seconds=2)
     scheduler.start()
 
 

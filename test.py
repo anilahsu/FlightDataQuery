@@ -11,8 +11,9 @@ import base64
 import requests
 from sqlalchemy import create_engine
 from apscheduler.schedulers.blocking import BlockingScheduler
-
-
+import pandas as pd
+from requests import request
+import pandas
 # 取得 API 資料
 app_id = '56edb16ea02b4d48a6b98eabd250e240'
 app_key = 'ladUqDMhhgBnvWhMuY9r4priDRY'
@@ -57,9 +58,15 @@ if __name__ == '__main__':
     print('header', headers)
 
     response = requests.get(
-        'https://ptx.transportdata.tw/MOTC/v2/Air/FIDS/Flight?format=JSON', headers=auth.get_auth_header())
+        'https://ptx.transportdata.tw/MOTC/v2/Air/FIDS/Flight?$top=30&$format=JSON', headers=auth.get_auth_header())
 
     print(f"HTTP status: {response.status_code}")
+
+ 
+    flight_data = response.json()
+    print(type(response.json()))
+    df = pandas.DataFrame(flight_data)
+    print(df)
 
     # 新增 if-modified-Since
     last_modified_time = response.headers.get('Last-Modified')
@@ -73,7 +80,8 @@ if __name__ == '__main__':
 
 # def dojob():
 #     scheduler = BlockingScheduler()
-#     scheduler.add_job(fun1, 'interval', seconds=2)
+#     scheduler.add_job(, 'interval', seconds=2)
 #     scheduler.start()
 
 # dojob()
+
