@@ -1,0 +1,42 @@
+[
+    {
+      "FlightDate": "2021-11-09",
+      "FlightNumber": "7016",
+      "AirRouteType": 2,
+      "AirlineID": "DA",
+      "DepartureAirportID": "CMJ",
+      "ArrivalAirportID": "MZG",
+      "ScheduleDepartureTime": "2021-11-09T12:00",
+      "ActualDepartureTime": "2021-11-09T11:58",
+      "ScheduleArrivalTime": "2021-11-09T12:20",
+      "ActualArrivalTime": "2021-11-09T12:15",
+      "DepartureRemark": "已飛",
+      "ArrivalRemark": "抵達",
+      "ArrivalTerminal": "",
+      "DepartureTerminal": "",
+      "ArrivalGate": "",
+      "DepartureGate": "",
+      "IsCargo": false,
+      "UpdateTime": "2021-11-09T18:42:31+08:00"
+    },
+    {
+      "FlightDate": "2021-11-09",
+      "FlightNumber": "7010",
+      "AirRouteType": 2,
+      "AirlineID": "DA",
+      "DepartureAirportID": "CMJ",
+      "ArrivalAirportID": "KHH",
+      "ScheduleDepartureTime": "2021-11-09T13:50",
+      "ActualDepartureTime": "2021-11-09T13:44",
+      "ScheduleArrivalTime": "2021-11-09T14:30",
+      "ActualArrivalTime": "2021-11-09T14:09",
+      "DepartureRemark": "已飛",
+      "ArrivalRemark": "抵達",
+      "ArrivalTerminal": "",
+      "DepartureTerminal": "",
+      "ArrivalGate": "",
+      "DepartureGate": "",
+      "IsCargo": false,
+      "UpdateTime": "2021-11-09T18:42:31+08:00"
+    }
+]
