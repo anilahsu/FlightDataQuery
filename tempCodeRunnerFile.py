@@ -1,1 +1,1 @@
-arrivalairportid
+timestamps

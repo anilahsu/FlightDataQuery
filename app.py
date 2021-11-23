@@ -1,3 +1,5 @@
+from hashlib import new
+from pandas._libs.tslibs import timestamps
 import requests
 import pandas
 from sqlalchemy import create_engine
@@ -49,6 +51,8 @@ def process_data(flight_data):
             drop_list.append(column)
     new_flight_df = flight_df.drop(drop_list, axis=1)
 
+    new_flight_df = new_flight_df.where(pandas.notnull(new_flight_df), None)
+
     # print(new_flight_df.info())
 
     # flight_df['hash'] = flight_df[['flightnumber','airlineid','departureairportid','arrivalairportid','schedulearrivaltime']].apply(' '.join, axis=1)
@@ -61,12 +65,15 @@ def process_data(flight_data):
     time_column_list = ['flightdate', 'scheduledeparturetime', 'actualdeparturetime', 'schedulearrivaltime',
                         'actualarrivaltime', 'estimatedarrivaltime', 'estimateddeparturetime', 'updatetime']
 
-
     # 將 fligjt_df 中的時間欄位從 object 轉成 datatime
     # 使 python (識別)類別對應至 sql 類別
     for column in new_flight_df.columns:
         if (column in time_column_list):
             new_flight_df[column] = pandas.to_datetime(new_flight_df[column])
+
+    if 'airroutetype' in new_flight_df.columns:
+        new_flight_df['airroutetype'] = new_flight_df['airroutetype'].astype(
+            str)
 
     for column, dtype in zip(new_flight_df.columns, new_flight_df.dtypes):
         if 'object' in str(dtype):
@@ -91,7 +98,7 @@ def save_data_to_db(new_flight_df, column_type_dict):
 
     drop_count = 0
     for index, row in new_flight_df.copy().iterrows():
-        cur.execute('''select * from flight 
+        cur.execute('''select * from flight
             where flightnumber = :flightnumber 
                 and airlineid = :airlineid 
                 and departureairportid = :departureairportid
@@ -102,13 +109,60 @@ def save_data_to_db(new_flight_df, column_type_dict):
                     departureairportid=row['departureairportid'],
                     arrivalairportid=row['arrivalairportid'],
                     flightdate=row['flightdate'])
-        
+
         exists = cur.fetchone()
 
         if exists:
+            update = '''update flight set flightdate = :flightdate,
+                flightnumber = :flightnumber,
+                airroutetype = :airroutetype,
+                airlineid = :airlineid,
+                departureairportid = :departureairportid,
+                arrivalairportid = :arrivalairportid,
+                scheduledeparturetime  = :scheduledeparturetime,
+                actualdeparturetime = :actualdeparturetime,
+                schedulearrivaltime = :schedulearrivaltime,
+                actualarrivaltime = :actualarrivaltime,
+                departureremark = :departureremark,
+                arrivalremark = :arrivalremark,
+                arrivalterminal = :arrivalterminal,
+                departureterminal = :departureterminal,
+                arrivalgate = :arrivalgate,
+                departuregate = :departuregate,
+                iscargo = :iscargo,
+                updatetime = :updatetime,
+                estimatedarrivaltime = :estimatedarrivaltime,
+                estimateddeparturetime = :estimateddeparturetime,
+                checkcounter = :checkcounter,
+                baggageclaim = :baggageclaim'''
 
-            new_flight_df.drop(index=index,inplace=True)
-            drop_count+=1
+            cur.execute(update,
+                        flightdate=row['flightdate'],
+                        flightnumber=row['flightnumber'],
+                        airroutetype=row['airroutetype'],
+                        airlineid=row['airlineid'],
+                        departureairportid=row['departureairportid'],
+                        arrivalairportid=row['arrivalairportid'],
+                        scheduledeparturetime=row['scheduledeparturetime'],
+                        actualdeparturetime=row['actualdeparturetime'],
+                        schedulearrivaltime=row['schedulearrivaltime'],
+                        actualarrivaltime=row['actualarrivaltime'],
+                        departureremark=row['departureremark'],
+                        arrivalremark=row['arrivalremark'],
+                        arrivalterminal=row['arrivalterminal'],
+                        departureterminal=row['departureterminal'],
+                        arrivalgate=row['arrivalgate'],
+                        departuregate=row['departuregate'],
+                        iscargo=row['iscargo'],
+                        updatetime=row['updatetime'],
+                        estimatedarrivaltime=row['estimatedarrivaltime'],
+                        estimateddeparturetime=row['estimateddeparturetime'],
+                        checkcounter=row['checkcounter'],
+                        baggageclaim=row['baggageclaim']
+                    )
+
+            new_flight_df.drop(index=index, inplace=True)
+            drop_count += 1
         else:
             print(row)
 
@@ -120,7 +174,7 @@ def save_data_to_db(new_flight_df, column_type_dict):
     db.commit()
 
     new_flight_df.to_sql('flight', con=engine,
-                     index=False, if_exists='append', dtype=column_type_dict)
+                         index=False, if_exists='append', dtype=column_type_dict)
 
 
 def get_flight_data_and_save():
