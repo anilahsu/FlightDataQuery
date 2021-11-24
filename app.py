@@ -98,7 +98,7 @@ def save_data_to_db(new_flight_df, column_type_dict):
 
     drop_count = 0
     for index, row in new_flight_df.copy().iterrows():
-        cur.execute('''select * from flight
+        cur.execute('''select * from flight_table
             where flightnumber = :flightnumber 
                 and airlineid = :airlineid 
                 and departureairportid = :departureairportid
@@ -113,7 +113,7 @@ def save_data_to_db(new_flight_df, column_type_dict):
         exists = cur.fetchone()
 
         if exists:
-            update = '''update flight set flightdate = :flightdate,
+            update = '''update flight_table set flightdate = :flightdate,
                 flightnumber = :flightnumber,
                 airroutetype = :airroutetype,
                 airlineid = :airlineid,
@@ -134,7 +134,29 @@ def save_data_to_db(new_flight_df, column_type_dict):
                 estimatedarrivaltime = :estimatedarrivaltime,
                 estimateddeparturetime = :estimateddeparturetime,
                 checkcounter = :checkcounter,
-                baggageclaim = :baggageclaim'''
+                baggageclaim = :baggageclaim 
+                where flightdate = :flightdate and
+                    flightnumber = :flightnumber and
+                    airroutetype = :airroutetype and
+                    airlineid = :airlineid and
+                    departureairportid = :departureairportid and
+                    arrivalairportid = :arrivalairportid and
+                    scheduledeparturetime  = :scheduledeparturetime and
+                    actualdeparturetime = :actualdeparturetime and
+                    schedulearrivaltime = :schedulearrivaltime  and
+                    actualarrivaltime = :actualarrivaltime and
+                    departureremark = :departureremark and
+                    arrivalremark = :arrivalremark and
+                    arrivalterminal = :arrivalterminal and
+                    departureterminal = :departureterminal and
+                    arrivalgate = :arrivalgate and
+                    departuregate = :departuregate and
+                    iscargo = :iscargo and
+                    updatetime = :updatetime and
+                    estimatedarrivaltime = :estimatedarrivaltime and
+                    estimateddeparturetime = :estimateddeparturetime and
+                    checkcounter = :checkcounter and
+                    baggageclaim = :baggageclaim'''
 
             cur.execute(update,
                         flightdate=row['flightdate'],
@@ -173,7 +195,7 @@ def save_data_to_db(new_flight_df, column_type_dict):
     cur.close()
     db.commit()
 
-    new_flight_df.to_sql('flight', con=engine,
+    new_flight_df.to_sql('flight_table', con=engine,
                          index=False, if_exists='append', dtype=column_type_dict)
 
 
@@ -188,7 +210,10 @@ def get_flight_data_and_save():
 
 
 def main():
-    get_flight_data_and_save()
+    scheduler = BlockingScheduler()
+    scheduler.add_job(get_flight_data_and_save, "interval",minutes=10)
+    scheduler.start()
+
 
 
 if __name__ == "__main__":
