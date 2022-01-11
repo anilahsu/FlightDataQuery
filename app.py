@@ -98,7 +98,7 @@ def save_data_to_db(new_flight_df, column_type_dict):
 
     drop_count = 0
     for index, row in new_flight_df.copy().iterrows():
-        cur.execute('''select * from airflighgt
+        cur.execute('''select * from airflight
             where flightnumber = :flightnumber 
                 and airlineid = :airlineid 
                 and departureairportid = :departureairportid
@@ -211,7 +211,7 @@ def get_flight_data_and_save():
 
 def main():
     scheduler = BlockingScheduler()
-    scheduler.add_job(get_flight_data_and_save, "interval",minutes=10)
+    scheduler.add_job(get_flight_data_and_save, "interval",minutes=15)
     scheduler.start()
 
 
