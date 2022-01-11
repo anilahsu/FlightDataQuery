@@ -211,7 +211,7 @@ def get_flight_data_and_save():
 
 def main():
     scheduler = BlockingScheduler()
-    scheduler.add_job(get_flight_data_and_save, "interval",minutes=10)
+    scheduler.add_job(get_flight_data_and_save, "interval",minutes=20)
     scheduler.start()
 
 
