@@ -15,7 +15,7 @@ Through the front-end platform,
 the assisting claim settlement unit can directly query the flight history and real-time information.
 
 ## Table Schema
-<pre><code>
+```sql
 create table flight_table(
 		Id number(38) generated always as identity(start with 1 increment by 1),
 		FlightDate timestamp,
@@ -41,4 +41,4 @@ create table flight_table(
 		CheckCounter nvarchar2(60),
 		BaggageClaim nvarchar2(60)
 )
-</code></pre>
+```
