@@ -1,6 +1,6 @@
 # FlightDataQuery
-This is a flight database built for companies and the health insurance sector.
-By connecting with the front-end flight inquiry platform,
+This is a flight database built for the company's health insurance division. 
+By connecting with the front-end flight inquiry platform, 
 it assists the claim settlement unit to inquire about flight history and real-time information.
 
 ## Purpose
